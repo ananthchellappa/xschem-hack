@@ -4171,6 +4171,27 @@ int non_start_WALPR_and_ALT_RMB_w_SHIFT_and_sem_LT_2(int START_W_A_L_P_R, int bu
   else return 0;
 }
 
+int non_start_WALPR_and_SHIFT_RMB_and_sem_LT_2(int START_W_A_L_P_R, int button, int state)
+{
+  if(!START_W_A_L_P_R && button == Button3 && (state & ShiftMask) && xctx->semaphore <2)
+  {
+    Selected sel;
+    sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
+    if(sel.type) select_connected_nets(0);
+    return 1;
+  }
+  else return 0;
+}
+
+int non_start_WALPR_and_RMB_and_sem_LT_2(int START_W_A_L_P_R, int button, int state)
+{
+  if(!START_W_A_L_P_R && button == Button3 && xctx->semaphore <2)
+  {
+    zoom_rectangle(START);
+    return 1;
+  }
+  else return 0;
+}
 
 // I don't like the way this is done - checking for low level keys.. we should use a lookup
 // table that the code goes through for all the keybindings that are defined.
@@ -4197,26 +4218,13 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
   if( non_start_WALPR_and_ALT_RMB_w_SHIFT_and_sem_LT_2(START_W_A_L_P_R, button, state, rstate) ) return;
 
   /* select instance and connected nets NOT stopping at wire junctions */
-  if(!START_W_A_L_P_R && button == Button3 && state == ShiftMask && xctx->semaphore <2)
-  {
-    Selected sel;
-    sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
-    if(sel.type) select_connected_nets(0);
-  }
-  /* moved to Button3 release */
-  /* 
-   * else if(button == Button3 && state == 0 && xctx->semaphore <2) {
-   *   context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
-   * }
-   */
+  if( non_start_WALPR_and_SHIFT_RMB_and_sem_LT_2(START_W_A_L_P_R, button, state) ) return;
 
   /* zoom rectangle by right clicking and drag */
-  else if(!START_W_A_L_P_R && button == Button3 && state == 0 && xctx->semaphore < 2) {
-    zoom_rectangle(START);return;
-  }
+  if( non_start_WALPR_and_RMB_and_sem_LT_2(START_W_A_L_P_R, button, state) ) return;
     
   /* Mouse wheel events */
-  else if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) return;
+  if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) return;
 
   /* terminate wire placement in snap mode */
   else if(button==Button1 && (state & ShiftMask) && (xctx->ui_state & STARTWIRE) ) {
