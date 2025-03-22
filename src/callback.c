@@ -4193,6 +4193,12 @@ int non_start_WALPR_and_RMB_and_sem_LT_2(int START_W_A_L_P_R, int button, int st
   else return 0;
 }
 
+int handle_LMB_and_SHIFT_and_STARTWIRE(int button, int state, double c_snap){
+  if(button==Button1 && (state & ShiftMask) && (xctx->ui_state & STARTWIRE) ) {
+    snapped_wire(c_snap);
+    return 1;
+  } else return 0;
+}
 // I don't like the way this is done - checking for low level keys.. we should use a lookup
 // table that the code goes through for all the keybindings that are defined.
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
@@ -4227,9 +4233,8 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
   if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) return;
 
   /* terminate wire placement in snap mode */
-  else if(button==Button1 && (state & ShiftMask) && (xctx->ui_state & STARTWIRE) ) {
-    snapped_wire(c_snap);
-  }
+  if( handle_LMB_and_SHIFT_and_STARTWIRE(button, state,  c_snap) ) return;
+
   /* Alt - Button1 click to unselect */
   else if(button==Button1 && (SET_MODMASK) ) {
     unselect_at_mouse_pos(mx, my);
