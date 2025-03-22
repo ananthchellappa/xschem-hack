@@ -4199,6 +4199,14 @@ int handle_LMB_and_SHIFT_and_STARTWIRE(int button, int state, double c_snap){
     return 1;
   } else return 0;
 }
+
+int handle_ALT_LMB(int button, int rstate, int mx, int my){
+  if(button==Button1 && (SET_MODMASK) ) {
+    unselect_at_mouse_pos(mx, my);
+    return 1;
+  } else return 0;
+}
+
 // I don't like the way this is done - checking for low level keys.. we should use a lookup
 // table that the code goes through for all the keybindings that are defined.
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
@@ -4236,12 +4244,10 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
   if( handle_LMB_and_SHIFT_and_STARTWIRE(button, state,  c_snap) ) return;
 
   /* Alt - Button1 click to unselect */
-  else if(button==Button1 && (SET_MODMASK) ) {
-    unselect_at_mouse_pos(mx, my);
-  }
+  if( handle_ALT_LMB(button, rstate, mx, my) ) return;
   
   /* Middle button press (Button2) will pan the schematic. */
-  else if(button==Button2 && (state == 0)) {
+  if(button==Button2 && (state == 0)) {
     pan(START, mx, my);
     xctx->ui_state |= STARTPAN;
   }
