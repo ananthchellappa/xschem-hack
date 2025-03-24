@@ -1775,3 +1775,10 @@ extern void create_ps(char** psfile, int what, int fullzoom, int eps);
 extern void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y, unsigned int width, unsigned int height, int dest_x, int dest_y);
 extern int win_regexec(const char *options, const char *pattern, const char *name);
 #endif /*CADGLOBALS */
+
+/* AC - based on chatGPT recommendations */
+#define DIALOG_TEXTINPUT_CHECK  "winfo exists .dialog.textinput"
+#define DIALOG_TXT_CHECk        "winfo exists .dialog.txt"
+#define DIALOG_OK_INVOKE        ".dialog.f1.b1 invoke"
+#define DIALOG_OK_BTN_INVOKE    ".dialog.buttons.ok invoke"
+#define SYMBOL_PROP_VAR         "edit_symbol_prop_new_sel"

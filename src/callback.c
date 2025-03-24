@@ -21,6 +21,9 @@
  */
 
 #include "xschem.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 
 /* allow to use the Windows keys as alternate for Alt */
 #define SET_MODMASK ( (rstate & Mod1Mask) || (rstate & Mod4Mask) ) 
@@ -4207,6 +4210,48 @@ int handle_ALT_LMB(int button, int rstate, int mx, int my){
   } else return 0;
 }
 
+int handle_MMB(int button, int state, int mx, int my){
+  if(button==Button2 && (state == 0)) {
+    pan(START, mx, my);
+    xctx->ui_state |= STARTPAN;
+    return 1;
+  } else return 0;
+}
+
+bool dialog_exists(const char *dialog_path) {
+  size_t len = strlen("winfo exists ") + strlen(dialog_path) + 1;
+  char *cmd = malloc(len);
+  if (!cmd) return false;  // handle allocation failure
+
+  snprintf(cmd, len, "winfo exists %s", dialog_path);
+  const char *result = tcleval(cmd);
+  free(cmd);
+
+  return result && result[0] == '1';
+}
+
+void handle_edit_dialog_selection(int state) {
+  if (dialog_exists(".dialog.textinput")) {
+    tcleval(DIALOG_OK_INVOKE);
+    return;
+  }
+  if (dialog_exists(".dialog.txt")) {
+    tcleval(DIALOG_OK_BTN_INVOKE);
+    return;
+  }
+
+  const char *sel_flag = tclgetvar("edit_symbol_prop_new_sel");
+  if (state == 0 && sel_flag[0]) {
+    tclsetvar("set edit_symbol_prop_new_sel", "1");
+    tcleval( DIALOG_OK_INVOKE);
+  } else if ((state & ShiftMask) && sel_flag[0]) {
+    select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
+    tclsetvar("preserve_unchanged_attrs", "1");
+    rebuild_selected_array();
+  }
+}
+
+
 // I don't like the way this is done - checking for low level keys.. we should use a lookup
 // table that the code goes through for all the keybindings that are defined.
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
@@ -4247,30 +4292,16 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
   if( handle_ALT_LMB(button, rstate, mx, my) ) return;
   
   /* Middle button press (Button2) will pan the schematic. */
-  if(button==Button2 && (state == 0)) {
-    pan(START, mx, my);
-    xctx->ui_state |= STARTPAN;
-  }
+  if( handle_MMB(button, state, mx, my) ) return;
 
   /* button1 click to select another instance while edit prop dialog open */
-  else if(button==Button1 && xctx->semaphore >= 2) {
-    if(tcleval("winfo exists .dialog.textinput")[0] == '1') { /* proc text_line */
-     tcleval(".dialog.f1.b1 invoke");
-     return;
-    } else if(tcleval("winfo exists .dialog.txt")[0] == '1') { /* proc enter_text */
-     tcleval(".dialog.buttons.ok invoke");
-     return;
-    } else if(state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
-     tcleval("set edit_symbol_prop_new_sel 1; .dialog.f1.b1 invoke"); /* invoke 'OK' of edit prop dialog */
-    } else if((state & ShiftMask) && tclgetvar("edit_symbol_prop_new_sel")[0]) {
-     select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
-     tclsetvar("preserve_unchanged_attrs", "1");
-     rebuild_selected_array();
-    }
+  if(button==Button1 && xctx->semaphore >= 2) {
+    handle_edit_dialog_selection(state);
+    return;
   }
 
   /* Handle the remaining Button1Press events */
-  else if(button==Button1) /* MOD button is not pressed here. Processed above */
+  if(button==Button1) /* MOD button is not pressed here. Processed above */
   {
     xctx->onetime = 0;
     xctx->mouse_moved = 0;
