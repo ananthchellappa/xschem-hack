@@ -4334,30 +4334,16 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
     xctx->drag_elements = 0;
 
     /* start another wire or line in persistent mode */
-    if( handle_persistent_command() ) return;
-    // if(tclgetboolvar("persistent_command") && xctx->last_command) {
-    //   if(xctx->last_command == STARTLINE) {
-    //     start_line(xctx->mousex_snap, xctx->mousey_snap);
-    //   }
-    //   if(xctx->last_command == STARTWIRE) {
-    //     if(tclgetboolvar("snap_cursor")
-    //       && (xctx->prev_snapx == xctx->mousex_snap
-    //       && xctx->prev_snapy == xctx->mousey_snap)
-    //       && (xctx->ui_state & STARTWIRE)
-    //       && xctx->closest_pin_found) {
-    //       new_wire(PLACE|END, xctx->mousex_snap, xctx->mousey_snap);
-    //       xctx->ui_state &= ~STARTWIRE;
-    //     } else {
-    //       start_wire(xctx->mousex_snap, xctx->mousey_snap);
-    //     }
-    //   }
-    //   return;
-    // }
+    if( handle_persistent_command() ) 
+      return;
+
     /* handle all object insertions started from Tools/Edit menu */
-    if(check_menu_start_commands(state, c_snap, mx, my)) return;
+    if(check_menu_start_commands(state, c_snap, mx, my)) 
+      return;
 
     /* complete the pending STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
-    if(end_place_move_copy_zoom()) return;
+    if(end_place_move_copy_zoom())
+      return;
 
     /* Button1Press to select objects */
     if(!START_W_A_L_P_R && !(xctx->ui_state & STARTSELECT)) {
@@ -4371,22 +4357,13 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
      xctx->mx_double_save=xctx->mousex;
      xctx->my_double_save=xctx->mousey;
 
-     #if 0 /* disabled */
-     /* Clicking and dragging from a **selected** instance pin will start a new wire
-      * if no other elements are selected */
-     if(xctx->lastsel == 1 && xctx->sel_array[0].type==ELEMENT) {
-      if(add_wire_from_wire(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) return;
-      if(add_wire_from_inst(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) return;
-     }
-     #endif
 
      /* In *NON* intuitive interface (or cadence compatibility) 
-      * a button1 press with no modifiers will* first unselect everything... 
-      * For intuitive interface unselection see below... */
-     if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) unselect_all(1);
+      * a button1 press with no modifiers will* first unselect everything.*/
+     if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) 
+       unselect_all(1);
 
-     /* find closest object. Use snap coordinates if full crosshair is enabled
-      * since the mouse pointer is obscured and crosshair is snapped to grid points */
+     /* if full crosshair, mouse ptr is obscured and crosshair is snapped to grid points */
      if(draw_xhair && (use_cursor_for_sel || crosshair_size == 0)) {
       sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
      } else {
@@ -4407,20 +4384,24 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
 
      /* Clicking and drag on an instance pin -> drag a new wire */
      if(xctx->intuitive_interface && !already_selected) {
-      if(add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap)) return;  
+      if(add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap)) 
+        return;  
      }
   
      /* Clicking and drag on a wire end -> drag a new wire */
      if(xctx->intuitive_interface && !already_selected) {
-      if(add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap)) return;  
+      if(add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap))
+        return;  
      }
 
      /* In intuitive interface a button1 press with no modifiers will
       *  unselect everything... we do it here */
-     if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
+     if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )
+       unselect_all(1);
 
      /* select the object under the mouse and rebuild the selected array */
-     if(!already_selected) select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
+     if(!already_selected) 
+       select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
      rebuild_selected_array();
      dbg(1, "Button1Press to select objects, lastsel = %d\n", xctx->lastsel);
 
@@ -4433,15 +4414,18 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
       int cond = already_selected;
 
       if(cond && xctx->sel_array[0].type==xRECT) {
-        if(edit_rect_point(state)) return; /* sets xctx->shape_point_selected */
+        if(edit_rect_point(state)) 
+          return; /* sets xctx->shape_point_selected */
       }
 
       if(cond && xctx->sel_array[0].type==LINE) {
-        if(edit_line_point(state)) return; /* sets xctx->shape_point_selected */
+        if(edit_line_point(state))
+          return; /* sets xctx->shape_point_selected */
       }
 
       if(cond && xctx->sel_array[0].type==WIRE) {
-       if(edit_wire_point(state)) return; /* sets xctx->shape_point_selected */
+       if(edit_wire_point(state))
+         return; /* sets xctx->shape_point_selected */
       }
      }
      dbg(1, "shape_point_selected=%d, lastsel=%d\n", xctx->shape_point_selected, xctx->lastsel);
