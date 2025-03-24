@@ -4251,6 +4251,32 @@ void handle_edit_dialog_selection(int state) {
   }
 }
 
+bool handle_persistent_command() {
+  if (!tclgetboolvar("persistent_command") || !xctx->last_command)
+    return false;
+
+  if (xctx->last_command == STARTLINE) {
+    start_line(xctx->mousex_snap, xctx->mousey_snap);
+    return true;
+  } 
+  else if (xctx->last_command == STARTWIRE) {
+    bool snap_match = (xctx->prev_snapx == xctx->mousex_snap) &&
+                      (xctx->prev_snapy == xctx->mousey_snap);
+    if (tclgetboolvar("snap_cursor") && snap_match &&
+        (xctx->ui_state & STARTWIRE) && xctx->closest_pin_found) {
+      new_wire(PLACE | END, xctx->mousex_snap, xctx->mousey_snap);
+      xctx->ui_state &= ~STARTWIRE;
+    } else {
+      start_wire(xctx->mousex_snap, xctx->mousey_snap);
+    }
+    return true;
+  }
+
+  return false;
+}
+
+
+
 
 // I don't like the way this is done - checking for low level keys.. we should use a lookup
 // table that the code goes through for all the keybindings that are defined.
@@ -4308,22 +4334,25 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
     xctx->drag_elements = 0;
 
     /* start another wire or line in persistent mode */
-    if(tclgetboolvar("persistent_command") && xctx->last_command) {
-     if(xctx->last_command == STARTLINE)  start_line(xctx->mousex_snap, xctx->mousey_snap);
-     if(xctx->last_command == STARTWIRE){
-      if(tclgetboolvar("snap_cursor")
-         && (xctx->prev_snapx == xctx->mousex_snap
-         && xctx->prev_snapy == xctx->mousey_snap)
-         && (xctx->ui_state & STARTWIRE)
-         && xctx->closest_pin_found){
-       new_wire(PLACE|END, xctx->mousex_snap, xctx->mousey_snap);
-       xctx->ui_state &= ~STARTWIRE;
-      }
-      else
-       start_wire(xctx->mousex_snap, xctx->mousey_snap);
-    }
-      return;
-    }
+    if( handle_persistent_command() ) return;
+    // if(tclgetboolvar("persistent_command") && xctx->last_command) {
+    //   if(xctx->last_command == STARTLINE) {
+    //     start_line(xctx->mousex_snap, xctx->mousey_snap);
+    //   }
+    //   if(xctx->last_command == STARTWIRE) {
+    //     if(tclgetboolvar("snap_cursor")
+    //       && (xctx->prev_snapx == xctx->mousex_snap
+    //       && xctx->prev_snapy == xctx->mousey_snap)
+    //       && (xctx->ui_state & STARTWIRE)
+    //       && xctx->closest_pin_found) {
+    //       new_wire(PLACE|END, xctx->mousex_snap, xctx->mousey_snap);
+    //       xctx->ui_state &= ~STARTWIRE;
+    //     } else {
+    //       start_wire(xctx->mousex_snap, xctx->mousey_snap);
+    //     }
+    //   }
+    //   return;
+    // }
     /* handle all object insertions started from Tools/Edit menu */
     if(check_menu_start_commands(state, c_snap, mx, my)) return;
 
