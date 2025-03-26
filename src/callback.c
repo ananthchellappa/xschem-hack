@@ -148,6 +148,7 @@ void abort_operation(void)
 {
   xctx->no_draw = 0;
   tcleval("set constr_mv 0" );
+  int cadence_compat = tclgetboolvar("cadence_compat");
   dbg(1, "abort_operation(): Escape: ui_state=%d, last_command=%d\n", xctx->ui_state, xctx->last_command);
   xctx->constr_mv=0;
 
@@ -185,7 +186,8 @@ void abort_operation(void)
     set_modify(0); /* aborted merge: no change, so reset modify flag set by delete() */
   }
   xctx->ui_state = 0;
-  unselect_all(1);
+  if(!cadence_compat)
+    unselect_all(1);
   draw();
 }
 
