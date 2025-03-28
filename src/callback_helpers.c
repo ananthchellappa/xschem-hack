@@ -26,3 +26,11 @@ int chk_if_already_selected(Selected sel){
         default: return 0;
     }
 }
+
+Selected get_obj_under_cursor(int draw_xhair, int use_cursor_for_sel, int crosshair_size){
+  if(draw_xhair && (use_cursor_for_sel || crosshair_size == 0)) {
+    return find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
+    } else {
+    return find_closest_obj(xctx->mousex, xctx->mousey, 0);
+    }
+}

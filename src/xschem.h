@@ -1786,3 +1786,5 @@ extern int win_regexec(const char *options, const char *pattern, const char *nam
 
 void save_mouse_pt(int x, int y);
 void save_elab_mouse_pt(int x, int y);
+int chk_if_already_selected(Selected sel);
+Selected get_obj_under_cursor(int draw_xhair, int use_cursor_for_sel, int crosshair_size);

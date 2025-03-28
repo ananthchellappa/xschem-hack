@@ -4356,30 +4356,17 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
      int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
 
      save_elab_mouse_pt(mx,my);
-     
+
      /* In *NON* intuitive interface (or cadence compatibility) 
       * a button1 press with no modifiers will* first unselect everything.*/
      if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) 
        unselect_all(1);
 
      /* if full crosshair, mouse ptr is obscured and crosshair is snapped to grid points */
-     if(draw_xhair && (use_cursor_for_sel || crosshair_size == 0)) {
-      sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
-     } else {
-      sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
-     }
+     sel = get_obj_under_cursor(draw_xhair, use_cursor_for_sel, crosshair_size);
      dbg(1, "sel.type=%d\n", sel.type);
      /* determine if closest object was already selected when button1 was pressed */
-     switch(sel.type) {
-      case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
-      case xTEXT:   if(xctx->text[sel.n].sel)          already_selected = 1; break;
-      case LINE:    if(xctx->line[sel.col][sel.n].sel) already_selected = 1; break;
-      case POLYGON: if(xctx->poly[sel.col][sel.n].sel) already_selected = 1; break;
-      case xRECT:   if(xctx->rect[sel.col][sel.n].sel) already_selected = 1; break;
-      case ARC:     if(xctx->arc[sel.col][sel.n].sel)  already_selected = 1; break;
-      case ELEMENT: if(xctx->inst[sel.n].sel)          already_selected = 1; break;
-      default: break;
-     } /*end switch */
+     already_selected = chk_if_already_selected(sel);
 
      /* Clicking and drag on an instance pin -> drag a new wire */
      if(xctx->intuitive_interface && !already_selected) {
