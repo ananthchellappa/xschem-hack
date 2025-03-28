@@ -4355,12 +4355,8 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
      int prev_last_sel = xctx->lastsel;
      int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
 
-     xctx->shape_point_selected = 0;
-     xctx->mx_save = mx; xctx->my_save = my;
-     xctx->mx_double_save=xctx->mousex;
-     xctx->my_double_save=xctx->mousey;
-
-
+     save_elab_mouse_pt(mx,my);
+     
      /* In *NON* intuitive interface (or cadence compatibility) 
       * a button1 press with no modifiers will* first unselect everything.*/
      if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) 

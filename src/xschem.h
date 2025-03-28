@@ -895,6 +895,7 @@ typedef struct {
   double savexor, saveyor, savezoom, savelw;
 } Zoom_info;
 
+
 typedef struct {
   xWire *wire;
   xText *text;
@@ -1782,3 +1783,6 @@ extern int win_regexec(const char *options, const char *pattern, const char *nam
 #define DIALOG_OK_INVOKE        ".dialog.f1.b1 invoke"
 #define DIALOG_OK_BTN_INVOKE    ".dialog.buttons.ok invoke"
 #define SYMBOL_PROP_VAR         "edit_symbol_prop_new_sel"
+
+void save_mouse_pt(int x, int y);
+void save_elab_mouse_pt(int x, int y);
