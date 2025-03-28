@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "callback.h"
 
 /* allow to use the Windows keys as alternate for Alt */
 #define SET_MODMASK ( (rstate & Mod1Mask) || (rstate & Mod4Mask) ) 
@@ -4146,7 +4147,7 @@ int check_and_handle_sch_pan_case()
 
 int non_start_WALPR_and_CTRL_RMB_and_sem_LT_2(int START_W_A_L_P_R, int button, int state)
 {
-  if(!START_W_A_L_P_R && button == Button3 && state == ControlMask && xctx->semaphore <2)
+  if(!START_W_A_L_P_R && RMB_CLICKED && state == ControlMask && xctx->semaphore <2)
   {
     Selected sel;
     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
@@ -4158,7 +4159,7 @@ int non_start_WALPR_and_CTRL_RMB_and_sem_LT_2(int START_W_A_L_P_R, int button, i
 
 int non_start_WALPR_and_ALT_RMB_no_SHIFT_and_sem_LT_2(int START_W_A_L_P_R, int button, int state, int rstate)
 {
-  if(!START_W_A_L_P_R && button == Button3 && EQUAL_MODMASK &&  !(state & ShiftMask) && xctx->semaphore <2)
+  if(!START_W_A_L_P_R && RMB_CLICKED && EQUAL_MODMASK &&  !(state & ShiftMask) && xctx->semaphore <2)
   {
       break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
       return 1;
@@ -4168,7 +4169,7 @@ int non_start_WALPR_and_ALT_RMB_no_SHIFT_and_sem_LT_2(int START_W_A_L_P_R, int b
 
 int non_start_WALPR_and_ALT_RMB_w_SHIFT_and_sem_LT_2(int START_W_A_L_P_R, int button, int state, int rstate)
 {
-  if(!START_W_A_L_P_R && button == Button3 && EQUAL_MODMASK && (state & ShiftMask) && xctx->semaphore <2)
+  if(!START_W_A_L_P_R && RMB_CLICKED && EQUAL_MODMASK && (state & ShiftMask) && xctx->semaphore <2)
   {
       break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
       return 1;
@@ -4178,7 +4179,7 @@ int non_start_WALPR_and_ALT_RMB_w_SHIFT_and_sem_LT_2(int START_W_A_L_P_R, int bu
 
 int non_start_WALPR_and_SHIFT_RMB_and_sem_LT_2(int START_W_A_L_P_R, int button, int state)
 {
-  if(!START_W_A_L_P_R && button == Button3 && (state & ShiftMask) && xctx->semaphore <2)
+  if(!START_W_A_L_P_R && RMB_CLICKED && (state & ShiftMask) && xctx->semaphore <2)
   {
     Selected sel;
     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
@@ -4190,7 +4191,7 @@ int non_start_WALPR_and_SHIFT_RMB_and_sem_LT_2(int START_W_A_L_P_R, int button, 
 
 int non_start_WALPR_and_RMB_and_sem_LT_2(int START_W_A_L_P_R, int button, int state)
 {
-  if(!START_W_A_L_P_R && button == Button3 && xctx->semaphore <2)
+  if(!START_W_A_L_P_R && RMB_CLICKED && xctx->semaphore <2)
   {
     zoom_rectangle(START);
     return 1;
@@ -4329,7 +4330,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
   }
 
   /* Handle the remaining Button1Press events */
-  if(button==Button1) /* MOD button is not pressed here. Processed above */
+  if(LMB_CLICKED) /* MOD button is not pressed here. Processed above */
   {
     xctx->onetime = 0;
     xctx->mouse_moved = 0;
