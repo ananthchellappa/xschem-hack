@@ -4370,15 +4370,11 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
     /* determine if closest object was already selected when button1 was pressed */
     already_selected = chk_if_already_selected(sel);
 
-    /* Clicking and drag on an instance pin -> drag a new wire */
-    if(xctx->intuitive_interface && !already_selected) {
-    if(add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap)) 
-      return;  
-    }
-
+    /* Clicking and drag on an instance pin -> drag a new wire .. or */
     /* Clicking and drag on a wire end -> drag a new wire */
     if(xctx->intuitive_interface && !already_selected) {
-    if(add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap))
+    if( add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap) ||
+        add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap)) 
       return;  
     }
 
