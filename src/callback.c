@@ -4349,111 +4349,111 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
       return;
 
     /* Button1Press to select objects */
-    if(!START_W_A_L_P_R && !(xctx->ui_state & STARTSELECT)) {
-     Selected sel;
-     int already_selected = 0;
-     int prev_last_sel = xctx->lastsel;
-     int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
+    if( START_W_A_L_P_R || (xctx->ui_state & STARTSELECT))
+      return;
 
-     save_elab_mouse_pt(mx,my);
+    Selected sel;
+    int already_selected = 0;
+    int prev_last_sel = xctx->lastsel;
+    int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
 
-     /* In *NON* intuitive interface (or cadence compatibility) 
-      * a button1 press with no modifiers will* first unselect everything.*/
-     if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) 
-       unselect_all(1);
+    save_elab_mouse_pt(mx,my);
 
-     /* if full crosshair, mouse ptr is obscured and crosshair is snapped to grid points */
-     sel = get_obj_under_cursor(draw_xhair, use_cursor_for_sel, crosshair_size);
-     dbg(1, "sel.type=%d\n", sel.type);
-     /* determine if closest object was already selected when button1 was pressed */
-     already_selected = chk_if_already_selected(sel);
+    /* In *NON* intuitive interface (or cadence compatibility) 
+    * a button1 press with no modifiers will* first unselect everything.*/
+    if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) 
+      unselect_all(1);
 
-     /* Clicking and drag on an instance pin -> drag a new wire */
-     if(xctx->intuitive_interface && !already_selected) {
-      if(add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap)) 
-        return;  
-     }
-  
-     /* Clicking and drag on a wire end -> drag a new wire */
-     if(xctx->intuitive_interface && !already_selected) {
-      if(add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap))
-        return;  
-     }
+    /* if full crosshair, mouse ptr is obscured and crosshair is snapped to grid points */
+    sel = get_obj_under_cursor(draw_xhair, use_cursor_for_sel, crosshair_size);
+    dbg(1, "sel.type=%d\n", sel.type);
+    /* determine if closest object was already selected when button1 was pressed */
+    already_selected = chk_if_already_selected(sel);
 
-     /* In intuitive interface a button1 press with no modifiers will
-      *  unselect everything... we do it here */
-     if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )
-       unselect_all(1);
+    /* Clicking and drag on an instance pin -> drag a new wire */
+    if(xctx->intuitive_interface && !already_selected) {
+    if(add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap)) 
+      return;  
+    }
 
-     /* select the object under the mouse and rebuild the selected array */
-     if(!already_selected) 
-       select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
-     rebuild_selected_array();
-     dbg(1, "Button1Press to select objects, lastsel = %d\n", xctx->lastsel);
+    /* Clicking and drag on a wire end -> drag a new wire */
+    if(xctx->intuitive_interface && !already_selected) {
+    if(add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap))
+      return;  
+    }
 
-     /* if clicking on some object endpoints or vertices set shape_point_selected
-      * this information will be used in Motion events to draw the stretched vertices */
-     if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
-      if(edit_polygon_point(state)) return; /* sets xctx->shape_point_selected */
-     }
-     if(xctx->lastsel == 1 && xctx->intuitive_interface) {
-      int cond = already_selected;
+    /* In intuitive interface a button1 press with no modifiers will
+    *  unselect everything... we do it here */
+    if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )
+      unselect_all(1);
 
-      if(cond && xctx->sel_array[0].type==xRECT) {
-        if(edit_rect_point(state)) 
-          return; /* sets xctx->shape_point_selected */
+    /* select the object under the mouse and rebuild the selected array */
+    if(!already_selected) 
+      select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
+    rebuild_selected_array();
+    dbg(1, "Button1Press to select objects, lastsel = %d\n", xctx->lastsel);
+
+    /* if clicking on some object endpoints or vertices set shape_point_selected
+    * this information will be used in Motion events to draw the stretched vertices */
+    if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
+    if(edit_polygon_point(state)) return; /* sets xctx->shape_point_selected */
+    }
+    if(xctx->lastsel == 1 && xctx->intuitive_interface) {
+    int cond = already_selected;
+
+    if(cond && xctx->sel_array[0].type==xRECT) {
+      if(edit_rect_point(state)) 
+        return; /* sets xctx->shape_point_selected */
+    }
+
+    if(cond && xctx->sel_array[0].type==LINE) {
+      if(edit_line_point(state))
+        return; /* sets xctx->shape_point_selected */
+    }
+
+    if(cond && xctx->sel_array[0].type==WIRE) {
+      if(edit_wire_point(state))
+        return; /* sets xctx->shape_point_selected */
+    }
+    }
+    dbg(1, "shape_point_selected=%d, lastsel=%d\n", xctx->shape_point_selected, xctx->lastsel);
+
+    /* intuitive interface: directly drag elements */
+    if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
+      !xctx->shape_point_selected) {
+    /* enable_stretch (from TCL variable) reverses command if enabled:
+      * - move --> stretch move
+      * - stretch move (with ctrl key) --> move
+      */
+    int stretch = (state & ControlMask ? 1 : 0) ^ enable_stretch;
+    xctx->drag_elements = 1;
+    /* select attached nets depending on ControlMask and enable_stretch */
+    if(stretch) {
+      select_attached_nets(); /* stretch nets that land on selected instance pins */
+    }
+    /* if dragging instances with stretch enabled and Shift down add wires to pins
+      * attached to something */
+    if((state & ShiftMask) && stretch) {
+      xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
+      move_objects(START,0,0,0);
+    }
+    /* dragging away an object with Shift pressed is a copy (duplicate object) */
+    else if(state & ShiftMask) copy_objects(START);
+    /* else it is a normal move */
+    else move_objects(START,0,0,0);
+    }
+
+    if(tclgetboolvar("auto_hilight") && !xctx->shape_point_selected) {
+    if(!(state & ShiftMask) && xctx->hilight_nets && sel.type == 0 ) {
+      if(!prev_last_sel) {
+        redraw_hilights(1); /* 1: clear all hilights, then draw */
       }
-
-      if(cond && xctx->sel_array[0].type==LINE) {
-        if(edit_line_point(state))
-          return; /* sets xctx->shape_point_selected */
-      }
-
-      if(cond && xctx->sel_array[0].type==WIRE) {
-       if(edit_wire_point(state))
-         return; /* sets xctx->shape_point_selected */
-      }
-     }
-     dbg(1, "shape_point_selected=%d, lastsel=%d\n", xctx->shape_point_selected, xctx->lastsel);
-
-     /* intuitive interface: directly drag elements */
-     if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
-       !xctx->shape_point_selected) {
-      /* enable_stretch (from TCL variable) reverses command if enabled:
-       * - move --> stretch move
-       * - stretch move (with ctrl key) --> move
-       */
-      int stretch = (state & ControlMask ? 1 : 0) ^ enable_stretch;
-      xctx->drag_elements = 1;
-      /* select attached nets depending on ControlMask and enable_stretch */
-      if(stretch) {
-        select_attached_nets(); /* stretch nets that land on selected instance pins */
-      }
-      /* if dragging instances with stretch enabled and Shift down add wires to pins
-       * attached to something */
-      if((state & ShiftMask) && stretch) {
-        xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
-        move_objects(START,0,0,0);
-      }
-      /* dragging away an object with Shift pressed is a copy (duplicate object) */
-      else if(state & ShiftMask) copy_objects(START);
-      /* else it is a normal move */
-      else move_objects(START,0,0,0);
-     }
-
-     if(tclgetboolvar("auto_hilight") && !xctx->shape_point_selected) {
-      if(!(state & ShiftMask) && xctx->hilight_nets && sel.type == 0 ) {
-        if(!prev_last_sel) {
-         redraw_hilights(1); /* 1: clear all hilights, then draw */
-        }
-      }
-      hilight_net(0);
-      if(xctx->lastsel) {
-        redraw_hilights(0);
-      }
-     }
-     return;
-    } /* if(!START_W_A_L_P_R) */
+    }
+    hilight_net(0);
+    if(xctx->lastsel) {
+      redraw_hilights(0);
+    }
+    }
   } /* button==Button1 */
   
   return;
