@@ -1795,60 +1795,6 @@ static int check_menu_start_commands(int state, double c_snap, int mx, int my)
   return 0;
 }
 
-// static int add_wire_from_inst(Selected *sel, double mx, double my)
-// {
-//   int res = 0;
-//   int prev_state = xctx->ui_state;
-//   int i, type = sel->type;
-//   double pinx0, piny0;
-//   if(type == ELEMENT) {
-//     int n = sel->n;
-//     xSymbol *symbol = xctx->sym + xctx->inst[n].ptr;
-//     int npin = symbol->rects[PINLAYER];
-//     for(i = 0; i < npin; ++i) {
-//       get_inst_pin_coord(n, i, &pinx0, &piny0);
-//       if(pinx0 == mx && piny0 == my) {
-//         break;
-//       }
-//     }
-//     if(i < npin) {
-//       dbg(1, "pin: %g %g\n", pinx0, piny0);
-//       unselect_all(1);
-//       start_wire(xctx->mousex_snap, xctx->mousey_snap); 
-//       if(prev_state == STARTWIRE) {
-//         tcleval("set constr_mv 0" );
-//         xctx->constr_mv=0;
-//       }
-//       res = 1;
-//     }
-//   }
-//   return res;
-// }
-
-// static int add_wire_from_wire(Selected *sel, double mx, double my)
-// {
-//   int res = 0;
-//   int prev_state = xctx->ui_state;
-//   int type = sel->type;
-//   if(type == WIRE) {
-//     int n = sel->n;
-//     double x1 = xctx->wire[n].x1;
-//     double y1 = xctx->wire[n].y1;
-//     double x2 = xctx->wire[n].x2;
-//     double y2 = xctx->wire[n].y2;
-//     if( (mx == x1 && my == y1) || (mx == x2 && my == y2) ) {
-//       unselect_all(1); 
-//       start_wire(xctx->mousex_snap, xctx->mousey_snap); 
-//       if(prev_state == STARTWIRE) {
-//         tcleval("set constr_mv 0" );
-//         xctx->constr_mv=0;
-//       }
-//       res = 1;
-//     }
-//   }
-//   return res;
-// }
-
 /* sets xctx->shape_point_selected */
 static int edit_line_point(int state)
 {
@@ -4363,16 +4309,12 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
     int prev_last_sel = xctx->lastsel;
     int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
 
-    
-
     /* In *NON* intuitive interface (or cadence compatibility) 
     * a button1 press with no modifiers will* first unselect everything.*/
     if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) 
       unselect_all(1);
-
     
     dbg(1, "sel.type=%d\n", sel.type);
-    /* determine if closest object was already selected when button1 was pressed */
     already_selected = chk_if_already_selected(sel);
     if(handle_wire_drawing_if_needed(sel, already_selected))
       return;

@@ -14,6 +14,7 @@ void save_elab_mouse_pt(int x, int y)
   xctx->my_double_save=xctx->mousey;
 }
 
+/* determine if object was already selected when button1 was pressed */
 int chk_if_already_selected(Selected sel){
     switch(sel.type) {
         case WIRE:    if(xctx->wire[sel.n].sel)          return 1;
