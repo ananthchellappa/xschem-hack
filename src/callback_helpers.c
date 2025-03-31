@@ -102,3 +102,19 @@ bool handle_wire_drawing_if_needed(Selected sel, int already_selected) {
     }
     return false;
 }
+
+    /* In *NON* intuitive interface (or cadence compatibility) 
+    * a button1 press with no modifiers will* first unselect everything.*/
+void maybe_unsel_all_in_CDNS_compat(int cadence_compat, int state)
+{
+  if((cadence_compat || !xctx->intuitive_interface) && !(state & (ShiftMask | ControlMask)))
+    unselect_all(1);
+}
+
+    /* In intuitive interface a button1 press with no modifiers will
+    *  unselect everything... we do it here */
+void maybe_unsel_all_in_intutive(int already_selected, int state)
+{
+  if(xctx->intuitive_interface && !already_selected && !(state & (ShiftMask | ControlMask)))
+    unselect_all(1);
+}

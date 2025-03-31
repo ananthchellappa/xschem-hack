@@ -1790,3 +1790,5 @@ void save_elab_mouse_pt(int x, int y);
 int chk_if_already_selected(Selected sel);
 Selected get_obj_under_cursor(int draw_xhair, int use_cursor_for_sel, int crosshair_size);
 bool handle_wire_drawing_if_needed(Selected sel, int already_selected);
+void maybe_unsel_all_in_CDNS_compat(int cadence_compat, int state);
+void maybe_unsel_all_in_intutive(int already_selected, int state);

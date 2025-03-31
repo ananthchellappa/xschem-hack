@@ -4307,22 +4307,15 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
     
     int already_selected = 0;
     int prev_last_sel = xctx->lastsel;
-    int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
 
-    /* In *NON* intuitive interface (or cadence compatibility) 
-    * a button1 press with no modifiers will* first unselect everything.*/
-    if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) 
-      unselect_all(1);
-    
+    maybe_unsel_all_in_CDNS_compat(cadence_compat, state);
+
     dbg(1, "sel.type=%d\n", sel.type);
     already_selected = chk_if_already_selected(sel);
     if(handle_wire_drawing_if_needed(sel, already_selected))
       return;
 
-    /* In intuitive interface a button1 press with no modifiers will
-    *  unselect everything... we do it here */
-    if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )
-      unselect_all(1);
+    maybe_unsel_all_in_intutive(already_selected, state);
 
     /* select the object under the mouse and rebuild the selected array */
     if(!already_selected) 
