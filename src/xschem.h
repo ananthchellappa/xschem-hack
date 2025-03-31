@@ -1784,7 +1784,9 @@ extern int win_regexec(const char *options, const char *pattern, const char *nam
 #define DIALOG_OK_BTN_INVOKE    ".dialog.buttons.ok invoke"
 #define SYMBOL_PROP_VAR         "edit_symbol_prop_new_sel"
 
+#include <stdbool.h>
 void save_mouse_pt(int x, int y);
 void save_elab_mouse_pt(int x, int y);
 int chk_if_already_selected(Selected sel);
 Selected get_obj_under_cursor(int draw_xhair, int use_cursor_for_sel, int crosshair_size);
+bool handle_wire_drawing_if_needed(Selected sel, int already_selected);

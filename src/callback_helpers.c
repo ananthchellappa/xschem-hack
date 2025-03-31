@@ -35,3 +35,69 @@ Selected get_obj_under_cursor(int draw_xhair, int use_cursor_for_sel, int crossh
     return find_closest_obj(xctx->mousex, xctx->mousey, 0);
     }
 }
+
+int add_wire_from_inst(Selected *sel, double mx, double my)
+{
+  int res = 0;
+  int prev_state = xctx->ui_state;
+  int i, type = sel->type;
+  double pinx0, piny0;
+  if(type == ELEMENT) {
+    int n = sel->n;
+    xSymbol *symbol = xctx->sym + xctx->inst[n].ptr;
+    int npin = symbol->rects[PINLAYER];
+    for(i = 0; i < npin; ++i) {
+      get_inst_pin_coord(n, i, &pinx0, &piny0);
+      if(pinx0 == mx && piny0 == my) {
+        break;
+      }
+    }
+    if(i < npin) {
+      dbg(1, "pin: %g %g\n", pinx0, piny0);
+      unselect_all(1);
+      start_wire(xctx->mousex_snap, xctx->mousey_snap); 
+      if(prev_state == STARTWIRE) {
+        tcleval("set constr_mv 0" );
+        xctx->constr_mv=0;
+      }
+      res = 1;
+    }
+  }
+  return res;
+}
+
+int add_wire_from_wire(Selected *sel, double mx, double my)
+{
+  int res = 0;
+  int prev_state = xctx->ui_state;
+  int type = sel->type;
+  if(type == WIRE) {
+    int n = sel->n;
+    double x1 = xctx->wire[n].x1;
+    double y1 = xctx->wire[n].y1;
+    double x2 = xctx->wire[n].x2;
+    double y2 = xctx->wire[n].y2;
+    if( (mx == x1 && my == y1) || (mx == x2 && my == y2) ) {
+      unselect_all(1); 
+      start_wire(xctx->mousex_snap, xctx->mousey_snap); 
+      if(prev_state == STARTWIRE) {
+        tcleval("set constr_mv 0" );
+        xctx->constr_mv=0;
+      }
+      res = 1;
+    }
+  }
+  return res;
+}
+
+    /* Clicking and drag on an instance pin -> drag a new wire .. or */
+    /* Clicking and drag on a wire end -> drag a new wire */
+bool handle_wire_drawing_if_needed(Selected sel, int already_selected) {
+    if (xctx->intuitive_interface && !already_selected) {
+      if (add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap) ||
+          add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap)) {
+        return true;
+      }
+    }
+    return false;
+}
