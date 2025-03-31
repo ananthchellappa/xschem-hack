@@ -4278,7 +4278,10 @@ bool handle_persistent_command() {
   return false;
 }
 
-
+static bool is_start_WALPR_or_SELECT(int START_W_A_L_P_R) {
+  return START_W_A_L_P_R || (xctx->ui_state & STARTSELECT);
+  /* Not if */
+}
 
 
 // I don't like the way this is done - checking for low level keys.. we should use a lookup
@@ -4349,8 +4352,9 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
       return;
 
     /* Button1Press to select objects */
-    if( START_W_A_L_P_R || (xctx->ui_state & STARTSELECT))
+    if( is_start_WALPR_or_SELECT(START_W_A_L_P_R) ) 
       return;
+
 
     Selected sel;
     int already_selected = 0;
