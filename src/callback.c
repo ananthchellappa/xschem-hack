@@ -4354,22 +4354,23 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
     /* Button1Press to select objects */
     if( is_start_WALPR_or_SELECT(START_W_A_L_P_R) ) 
       return;
+    
+    save_elab_mouse_pt(mx,my);
 
-
-    Selected sel;
+    Selected sel = get_obj_under_cursor(draw_xhair, use_cursor_for_sel, crosshair_size);;
+    
     int already_selected = 0;
     int prev_last_sel = xctx->lastsel;
     int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
 
-    save_elab_mouse_pt(mx,my);
+    
 
     /* In *NON* intuitive interface (or cadence compatibility) 
     * a button1 press with no modifiers will* first unselect everything.*/
     if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) 
       unselect_all(1);
 
-    /* if full crosshair, mouse ptr is obscured and crosshair is snapped to grid points */
-    sel = get_obj_under_cursor(draw_xhair, use_cursor_for_sel, crosshair_size);
+    
     dbg(1, "sel.type=%d\n", sel.type);
     /* determine if closest object was already selected when button1 was pressed */
     already_selected = chk_if_already_selected(sel);
