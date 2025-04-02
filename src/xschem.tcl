@@ -7494,6 +7494,8 @@ proc context_menu { } {
   }
   set selection  [expr {[xschem get lastsel] > 0}]
   toplevel .ctxmenu
+  focus -force .ctxmenu
+  bind .ctxmenu <Escape> { destroy .ctxmenu }
   wm overrideredirect .ctxmenu 1
   set x [expr {[winfo pointerx .ctxmenu] - 10}]
   set y [expr {[winfo pointery .ctxmenu] - 10}]
