@@ -1792,3 +1792,5 @@ Selected get_obj_under_cursor(int draw_xhair, int use_cursor_for_sel, int crossh
 bool handle_wire_drawing_if_needed(Selected sel, int already_selected);
 void maybe_unsel_all_in_CDNS_compat(int cadence_compat, int state);
 void maybe_unsel_all_in_intutive(int already_selected, int state);
+void handle_selection_logic(int already_selected, Selected *sel);
+void handle_auto_highlighting(Selected sel, int state);

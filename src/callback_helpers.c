@@ -118,3 +118,26 @@ void maybe_unsel_all_in_intutive(int already_selected, int state)
   if(xctx->intuitive_interface && !already_selected && !(state & (ShiftMask | ControlMask)))
     unselect_all(1);
 }
+
+void handle_selection_logic(int already_selected, Selected *sel){
+  if(!already_selected) 
+    select_object(xctx->mousex, xctx->mousey, SELECTED, 0, sel);
+  rebuild_selected_array();
+  dbg(1, "Button1Press to select objects, lastsel = %d\n", xctx->lastsel); 
+}
+
+void handle_auto_highlighting(Selected sel, int state) {
+    if (!tclgetboolvar("auto_hilight") || xctx->shape_point_selected)
+        return;
+
+    if (!(state & ShiftMask) && xctx->hilight_nets && sel.type == 0) {
+        if (!xctx->lastsel) {
+            redraw_hilights(1);
+        }
+    }
+    hilight_net(0);
+    if (xctx->lastsel) {
+        redraw_hilights(0);
+    }
+}
+  

@@ -4303,14 +4303,13 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
     
     save_elab_mouse_pt(mx,my);
 
-    Selected sel = get_obj_under_cursor(draw_xhair, use_cursor_for_sel, crosshair_size);;
-    
+    Selected sel = get_obj_under_cursor(draw_xhair, use_cursor_for_sel, crosshair_size);
+    dbg(1, "sel.type=%d\n", sel.type);
     int already_selected = 0;
     int prev_last_sel = xctx->lastsel;
 
     maybe_unsel_all_in_CDNS_compat(cadence_compat, state);
 
-    dbg(1, "sel.type=%d\n", sel.type);
     already_selected = chk_if_already_selected(sel);
     if(handle_wire_drawing_if_needed(sel, already_selected))
       return;
@@ -4318,10 +4317,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
     maybe_unsel_all_in_intutive(already_selected, state);
 
     /* select the object under the mouse and rebuild the selected array */
-    if(!already_selected) 
-      select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
-    rebuild_selected_array();
-    dbg(1, "Button1Press to select objects, lastsel = %d\n", xctx->lastsel);
+    handle_selection_logic(already_selected, &sel);
 
     /* if clicking on some object endpoints or vertices set shape_point_selected
     * this information will be used in Motion events to draw the stretched vertices */
@@ -4373,17 +4369,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
     else move_objects(START,0,0,0);
     }
 
-    if(tclgetboolvar("auto_hilight") && !xctx->shape_point_selected) {
-    if(!(state & ShiftMask) && xctx->hilight_nets && sel.type == 0 ) {
-      if(!prev_last_sel) {
-        redraw_hilights(1); /* 1: clear all hilights, then draw */
-      }
-    }
-    hilight_net(0);
-    if(xctx->lastsel) {
-      redraw_hilights(0);
-    }
-    }
+    handle_auto_highlighting(sel, state);
   } /* button==Button1 */
   
   return;
