@@ -4123,7 +4123,6 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
     Selected sel = get_obj_under_cursor(draw_xhair, use_cursor_for_sel, crosshair_size);
     dbg(1, "sel.type=%d\n", sel.type);
     int already_selected = 0;
-    int prev_last_sel = xctx->lastsel;
 
     maybe_unsel_all_in_CDNS_compat(cadence_compat, state);
 
