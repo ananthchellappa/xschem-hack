@@ -1795,3 +1795,4 @@ void maybe_unsel_all_in_intutive(int already_selected, int state);
 void handle_selection_logic(int already_selected, Selected *sel);
 void handle_auto_highlighting(Selected sel, int state);
 bool try_edit_shape_point(int state, int already_selected);
+void handle_drag_or_move(Selected sel, int state, int enable_stretch);

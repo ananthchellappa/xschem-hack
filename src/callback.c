@@ -4141,30 +4141,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
       return;
     dbg(1, "shape_point_selected=%d, lastsel=%d\n", xctx->shape_point_selected, xctx->lastsel);
 
-    /* intuitive interface: directly drag elements */
-    if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
-      !xctx->shape_point_selected) {
-    /* enable_stretch (from TCL variable) reverses command if enabled:
-      * - move --> stretch move
-      * - stretch move (with ctrl key) --> move
-      */
-    int stretch = (state & ControlMask ? 1 : 0) ^ enable_stretch;
-    xctx->drag_elements = 1;
-    /* select attached nets depending on ControlMask and enable_stretch */
-    if(stretch) {
-      select_attached_nets(); /* stretch nets that land on selected instance pins */
-    }
-    /* if dragging instances with stretch enabled and Shift down add wires to pins
-      * attached to something */
-    if((state & ShiftMask) && stretch) {
-      xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
-      move_objects(START,0,0,0);
-    }
-    /* dragging away an object with Shift pressed is a copy (duplicate object) */
-    else if(state & ShiftMask) copy_objects(START);
-    /* else it is a normal move */
-    else move_objects(START,0,0,0);
-    }
+    handle_drag_or_move(sel, state, enable_stretch);
 
     handle_auto_highlighting(sel, state);
   } /* button==Button1 */
